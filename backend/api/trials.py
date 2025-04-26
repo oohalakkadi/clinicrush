@@ -22,6 +22,7 @@ class TrialAPI:
             
             # Add location if provided
             if location:
+                # Format the query with location correctly for the API
                 params["query.term"] = f"{condition} AND AREA[LocationCity]{location}"
             
             logger.debug(f"API request URL: {TrialAPI.BASE_URL}")
@@ -33,8 +34,7 @@ class TrialAPI:
             logger.debug(f"API response status: {response.status_code}")
             if response.status_code != 200:
                 logger.error(f"API error: {response.text}")
-                logger.warning("Falling back to mock data")
-                return TrialAPI._get_mock_trials(condition, location)
+                return {"error": "Failed to fetch clinical trials", "details": response.text}
             
             # Process and format the response
             data = response.json()
@@ -44,8 +44,8 @@ class TrialAPI:
             logger.debug(f"Found {len(studies)} studies")
             
             if not studies:
-                logger.warning("No studies found, falling back to mock data")
-                return TrialAPI._get_mock_trials(condition, location)
+                logger.warning("No studies found")
+                return []
             
             formatted_trials = []
             for study in studies:
@@ -69,20 +69,42 @@ class TrialAPI:
                     },
                     'locations': [],
                     # Generate a match score between 70-99% for demo purposes
+                    # Using hash of NCT ID for consistency
                     'matchScore': 0.7 + (hash(identification.get('nctId', '')) % 30) / 100
                 }
                 
                 # Process location data
+                # Process location data (starting at line 75 in your trials.py file)
                 locations = contacts.get('locations', [])
                 for location in locations:
-                    location_data = {
-                        'facility': location.get('facility', {}).get('name', ''),
-                        'city': location.get('city', ''),
-                        'state': location.get('state', ''),
-                        'country': location.get('country', ''),
-                        'zip': location.get('zip', '')
-                    }
-                    trial['locations'].append(location_data)
+                    try:
+                        # Handle facility which could be a string or an object
+                        facility_name = ''
+                        facility_data = location.get('facility', {})
+                        if isinstance(facility_data, dict):
+                            facility_name = facility_data.get('name', '')
+                        else:
+                            # If it's already a string
+                            facility_name = str(facility_data)
+                        
+                        location_data = {
+                            'facility': facility_name,
+                            'city': location.get('city', ''),
+                            'state': location.get('state', ''),
+                            'country': location.get('country', ''),
+                            'zip': location.get('zip', '')
+                        }
+                        trial['locations'].append(location_data)
+                    except Exception as e:
+                        logger.warning(f"Error processing location data: {str(e)}")
+                        # Add a simple location entry in case of error
+                        trial['locations'].append({
+                            'facility': 'Unknown',
+                            'city': '',
+                            'state': '',
+                            'country': '',
+                            'zip': ''
+                        })
                 
                 formatted_trials.append(trial)
             
@@ -90,77 +112,4 @@ class TrialAPI:
             
         except Exception as e:
             logger.exception("Error in search_trials:")
-            return TrialAPI._get_mock_trials(condition, location)
-    
-    @staticmethod
-    def _get_mock_trials(condition, location=None):
-        """Generate mock trial data for demo purposes"""
-        logger.info("Generating mock trial data")
-        
-        mock_trials = [
-            {
-                'id': 'NCT01234567',
-                'title': f'Study of New Treatment for {condition}',
-                'conditions': [condition, 'Related Condition'],
-                'summary': f'This clinical trial investigates a new treatment for {condition} with promising results in preliminary studies.',
-                'gender': 'All',
-                'age_range': {
-                    'min': '18 Years',
-                    'max': '75 Years'
-                },
-                'locations': [
-                    {
-                        'facility': f'{location} Medical Center' if location else 'Major Medical Center',
-                        'city': location or 'Boston',
-                        'state': 'MA',
-                        'country': 'United States',
-                        'zip': '02115'
-                    }
-                ],
-                'matchScore': 0.85
-            },
-            {
-                'id': 'NCT23456789',
-                'title': f'Evaluation of Drug X for {condition} Treatment',
-                'conditions': [condition],
-                'summary': f'A phase 3 clinical trial evaluating the efficacy of Drug X in treating {condition} in adults.',
-                'gender': 'All',
-                'age_range': {
-                    'min': '21 Years',
-                    'max': '65 Years'
-                },
-                'locations': [
-                    {
-                        'facility': 'University Hospital',
-                        'city': location or 'Cambridge',
-                        'state': 'MA',
-                        'country': 'United States',
-                        'zip': '02139'
-                    }
-                ],
-                'matchScore': 0.75
-            },
-            {
-                'id': 'NCT34567890',
-                'title': f'Novel Approach to {condition} Management',
-                'conditions': [condition, 'Complications'],
-                'summary': f'This study examines a novel approach to managing {condition} and its complications.',
-                'gender': 'All',
-                'age_range': {
-                    'min': '30 Years',
-                    'max': '80 Years'
-                },
-                'locations': [
-                    {
-                        'facility': 'Research Hospital',
-                        'city': location or 'Boston',
-                        'state': 'MA',
-                        'country': 'United States',
-                        'zip': '02120'
-                    }
-                ],
-                'matchScore': 0.92
-            }
-        ]
-        
-        return mock_trials
+            return {"error": f"An error occurred: {str(e)}"}
