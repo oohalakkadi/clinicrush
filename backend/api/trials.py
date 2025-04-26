@@ -48,7 +48,7 @@ class TrialAPI:
     BASE_URL = "https://clinicaltrials.gov/api/v2/studies"
     
     @staticmethod
-    def search_trials(condition, location=None, max_results=20, distance_miles=50):
+    def search_trials(condition, location=None, max_results=1000, distance_miles=1000):
         """Search for clinical trials based on condition and location"""
         try:
             logger.debug(f"Searching for trials with condition: {condition}, location: {location}")
@@ -332,9 +332,17 @@ class TrialAPI:
         }
         
         state_map = {
-            'california': 'ca', 'texas': 'tx', 'florida': 'fl', 'new york': 'ny',
-            'pennsylvania': 'pa', 'illinois': 'il', 'ohio': 'oh', 'michigan': 'mi',
-            'massachusetts': 'ma', 'arizona': 'az', 'colorado': 'co'
+            'alabama': 'al', 'alaska': 'ak', 'arizona': 'az', 'arkansas': 'ar', 'california': 'ca',
+            'colorado': 'co', 'connecticut': 'ct', 'delaware': 'de', 'florida': 'fl', 'georgia': 'ga',
+            'hawaii': 'hi', 'idaho': 'id', 'illinois': 'il', 'indiana': 'in', 'iowa': 'ia',
+            'kansas': 'ks', 'kentucky': 'ky', 'louisiana': 'la', 'maine': 'me', 'maryland': 'md',
+            'massachusetts': 'ma', 'michigan': 'mi', 'minnesota': 'mn', 'mississippi': 'ms',
+            'missouri': 'mo', 'montana': 'mt', 'nebraska': 'ne', 'nevada': 'nv', 'new hampshire': 'nh',
+            'new jersey': 'nj', 'new mexico': 'nm', 'new york': 'ny', 'north carolina': 'nc',
+            'north dakota': 'nd', 'ohio': 'oh', 'oklahoma': 'ok', 'oregon': 'or', 'pennsylvania': 'pa',
+            'rhode island': 'ri', 'south carolina': 'sc', 'south dakota': 'sd', 'tennessee': 'tn',
+            'texas': 'tx', 'utah': 'ut', 'vermont': 'vt', 'virginia': 'va', 'washington': 'wa',
+            'west virginia': 'wv', 'wisconsin': 'wi', 'wyoming': 'wy'
         }
         
         # Convert to state codes (case insensitive)
