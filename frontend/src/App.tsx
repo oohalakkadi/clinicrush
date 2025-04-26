@@ -1,9 +1,10 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
+// src/App.tsx
 import React from 'react';
-import logo from './logo.svg';
 import { Container, Nav, Navbar, Tab, Tabs } from 'react-bootstrap';
-import TrialMatching from './components/trial-matching/TrialMatching';
 import './App.css';
+import TrialMatching from './components/trial-matching/TrialMatching';
+import UserProfilePage from './components/profile/UserProfilePage';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
   return (
@@ -34,10 +35,7 @@ function App() {
             </div>
           </Tab>
           <Tab eventKey="profile" title="My Profile">
-            <div className="p-4 text-center">
-              <h3>My Profile</h3>
-              <p>This tab will contain your health profile and preferences.</p>
-            </div>
+            <UserProfilePage />
           </Tab>
         </Tabs>
       </Container>
