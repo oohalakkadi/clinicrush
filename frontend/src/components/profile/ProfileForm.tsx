@@ -20,6 +20,12 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
   const [newAllergy, setNewAllergy] = useState<string>('');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
+  // Common allergens for quick selection
+  const commonAllergens = [
+    'Penicillin', 'Ibuprofen', 'Aspirin', 'Latex', 'Peanuts', 'Shellfish',
+    'Eggs', 'Dairy', 'Soy', 'Wheat', 'Tree Nuts', 'Sulfonamides'
+  ];
+
   // Check if all required fields are filled
   const isProfileComplete = Boolean(
     profile.firstName && 
@@ -111,6 +117,15 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     const updatedAllergies = [...profile.allergies];
     updatedAllergies.splice(index, 1);
     setProfile({ ...profile, allergies: updatedAllergies });
+  };
+
+  const addCommonAllergen = (allergen: string) => {
+    if (!profile.allergies.includes(allergen)) {
+      setProfile({
+        ...profile,
+        allergies: [...profile.allergies, allergen]
+      });
+    }
   };
 
   const validateForm = (): boolean => {
@@ -270,6 +285,24 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
               </Form.Group>
             </Col>
           </Row>
+          <Row>
+            <Col>
+              <Form.Group className="mb-3">
+                <Form.Label>Minimum Preferred Compensation ($)</Form.Label>
+                <Form.Control
+                  type="number"
+                  name="preferredCompensation"
+                  value={profile.preferredCompensation || ''}
+                  onChange={handleNumberChange}
+                  min="0"
+                  placeholder="Enter minimum payment amount"
+                />
+                <Form.Text className="text-muted">
+                  Optional: Enter minimum payment you'd like to receive for participating
+                </Form.Text>
+              </Form.Group>
+            </Col>
+          </Row>
         </Card.Body>
       </Card>
 
@@ -317,6 +350,58 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
           </Form.Group>
 
           <Form.Group className="mb-4">
+            <Form.Label>Allergies</Form.Label>
+            <div className="d-flex mb-2">
+              <Form.Control
+                type="text"
+                value={newAllergy}
+                onChange={(e) => setNewAllergy(e.target.value)}
+                placeholder="Enter an allergy"
+              />
+              <Button variant="outline-primary" onClick={addAllergy} className="ms-2">
+                Add
+              </Button>
+            </div>
+            
+            <div className="mb-2">
+              <small className="text-muted">Common allergens:</small>
+              <div className="mt-1">
+                {commonAllergens.map(allergen => (
+                  <Button 
+                    key={allergen}
+                    size="sm" 
+                    variant="outline-secondary" 
+                    className="me-1 mb-1" 
+                    onClick={() => addCommonAllergen(allergen)}
+                    disabled={profile.allergies.includes(allergen)}
+                  >
+                    {allergen}
+                  </Button>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              {profile.allergies.map((allergy, index) => (
+                <Badge bg="danger" className="me-2 mb-2 p-2" key={index}>
+                  {allergy}
+                  <Button
+                    variant="link"
+                    size="sm"
+                    className="p-0 ms-2 text-white"
+                    onClick={() => removeAllergy(index)}
+                  >
+                    ×
+                  </Button>
+                </Badge>
+              ))}
+            </div>
+            <Form.Text className="text-muted">
+              Trials involving substances you're allergic to won't be shown
+            </Form.Text>
+          </Form.Group>
+
+          <Form.Group className="mb-4">
             <Form.Label>Current Medications</Form.Label>
             <div className="d-flex mb-2">
               <Form.Control
@@ -338,36 +423,6 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
                     size="sm"
                     className="p-0 ms-2 text-white"
                     onClick={() => removeMedication(index)}
-                  >
-                    ×
-                  </Button>
-                </Badge>
-              ))}
-            </div>
-          </Form.Group>
-
-          <Form.Group className="mb-4">
-            <Form.Label>Allergies</Form.Label>
-            <div className="d-flex mb-2">
-              <Form.Control
-                type="text"
-                value={newAllergy}
-                onChange={(e) => setNewAllergy(e.target.value)}
-                placeholder="Enter an allergy"
-              />
-              <Button variant="outline-primary" onClick={addAllergy} className="ms-2">
-                Add
-              </Button>
-            </div>
-            <div>
-              {profile.allergies.map((allergy, index) => (
-                <Badge bg="warning" text="dark" className="me-2 mb-2 p-2" key={index}>
-                  {allergy}
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="p-0 ms-2 text-dark"
-                    onClick={() => removeAllergy(index)}
                   >
                     ×
                   </Button>

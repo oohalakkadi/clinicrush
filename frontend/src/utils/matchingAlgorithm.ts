@@ -1,5 +1,6 @@
 // src/utils/matchingAlgorithm.ts
 import { UserProfile } from '../types/UserProfile';
+import { calculateDistance as haversineDistance } from '../services/geocoding';
 
 interface Trial {
   id: string;
@@ -16,34 +17,33 @@ interface Trial {
     country: string;
     zip: string;
     facility: string;
-    distance?: number; // Added distance field
+    latitude?: number;
+    longitude?: number;
+    distance?: number;
   }[];
   summary: string;
-  matchScore?: number;
+  compensation?: {
+    has_compensation: boolean;
+    amount?: number;
+    currency?: string;
+    details?: string;
+  };
+  eligibilityCriteria?: string;
+  substancesUsed?: {
+    type: string;
+    name: string;
+  }[];
   distance?: number; // Overall distance to nearest location
+  matchScore?: number;
 }
-
-/**
- * Calculate distance between two points using Haversine formula
- * @param lat1 First latitude
- * @param lon1 First longitude
- * @param lat2 Second latitude
- * @param lon2 Second longitude
- * @returns Distance in miles
- */
-export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
-  // Mock distance calculation - in a real app, replace with actual geocoding and distance calculation
-  // For the prototype, we're returning a random distance between 1 and 100 miles
-  return Math.floor(Math.random() * 100) + 1;
-};
 
 /**
  * Calculate a match score between a user profile and a clinical trial
  * @param profile User profile
  * @param trial Clinical trial
- * @returns Match score (0.0 to 1.0) and distance
+ * @returns Match score (0.0 to 1.0)
  */
-export const calculateMatchScore = (profile: UserProfile, trial: Trial): { score: number, distance: number } => {
+export const calculateMatchScore = (profile: UserProfile, trial: Trial): number => {
   let score = 0;
   let maxScore = 0;
 
@@ -75,36 +75,77 @@ export const calculateMatchScore = (profile: UserProfile, trial: Trial): { score
   }
   maxScore += 15;
 
-  // Calculate closest location and its distance
-  let minDistance = Infinity;
-  
-  // Extract user's city and state
-  const [userCity, userState] = profile.location.split(',').map(s => s.trim());
-  
-  trial.locations.forEach(location => {
-    // In a real app, we'd use geocoding APIs to get lat/long and calculate actual distances
-    // For this prototype, we'll use a simple formula for demo purposes
-    const distance = calculateDistance(0, 0, 0, 0); // Mock calculation
-    location.distance = distance;
-    
-    if (distance < minDistance) {
-      minDistance = distance;
+  // Check location proximity
+  if (trial.distance !== undefined && trial.distance <= profile.maxTravelDistance) {
+    // Award full points if within 10 miles, partial points otherwise
+    if (trial.distance <= 10) {
+      score += 20;
+    } else {
+      // Linearly decrease points as distance increases
+      const distanceScore = 20 * (1 - (trial.distance / profile.maxTravelDistance));
+      score += Math.max(0, distanceScore);
     }
-  });
-  
-  // Only include locations within the user's max travel distance
-  const withinTravelDistance = minDistance <= profile.maxTravelDistance;
-  
-  if (withinTravelDistance) {
-    score += 20;
   }
   maxScore += 20;
 
+  // Check compensation preference if specified
+  if (profile.preferredCompensation && profile.preferredCompensation > 0) {
+    if (trial.compensation?.has_compensation && trial.compensation.amount) {
+      if (trial.compensation.amount >= profile.preferredCompensation) {
+        score += 10;
+      } else {
+        // Partial score based on how close the compensation is to preference
+        const compensationScore = 10 * (trial.compensation.amount / profile.preferredCompensation);
+        score += Math.min(10, compensationScore);
+      }
+    }
+    maxScore += 10;
+  }
+
   // Calculate final score as percentage
-  return { 
-    score: maxScore > 0 ? score / maxScore : 0,
-    distance: minDistance
-  };
+  return maxScore > 0 ? score / maxScore : 0;
+};
+
+/**
+ * Filter out trials that contain substances a user is allergic to
+ * @param trials List of trials
+ * @param allergies User allergies
+ * @returns Filtered trials
+ */
+export const filterTrialsByAllergies = (trials: Trial[], allergies: string[]): Trial[] => {
+  if (!allergies.length) return trials;
+  
+  // Normalize allergies for comparison
+  const normalizedAllergies = allergies.map(a => a.toLowerCase().trim());
+  
+  return trials.filter(trial => {
+    // Check substances used in the trial
+    if (trial.substancesUsed && trial.substancesUsed.length) {
+      for (const substance of trial.substancesUsed) {
+        if (normalizedAllergies.some(allergy => 
+          substance.name.toLowerCase().includes(allergy)
+        )) {
+          return false; // Skip trials with substances user is allergic to
+        }
+      }
+    }
+    
+    // Also check eligibility criteria text for allergy mentions
+    if (trial.eligibilityCriteria) {
+      const lowerCriteria = trial.eligibilityCriteria.toLowerCase();
+      
+      // Check for allergy exclusions
+      for (const allergy of normalizedAllergies) {
+        // Look for phrases like "allergy to [allergen]" in exclusion criteria
+        if (lowerCriteria.includes(`allergy to ${allergy}`) ||
+            lowerCriteria.includes(`allergic to ${allergy}`)) {
+          return false;
+        }
+      }
+    }
+    
+    return true;
+  });
 };
 
 /**
@@ -115,26 +156,30 @@ export const calculateMatchScore = (profile: UserProfile, trial: Trial): { score
  */
 export const rankTrialsByMatchScore = (trials: Trial[], profile: UserProfile): Trial[] => {
   const scoredTrials = trials.map(trial => {
-    const { score, distance } = calculateMatchScore(profile, trial);
-    return { 
-      ...trial, 
-      matchScore: score,
-      distance: distance
-    };
+    const matchScore = calculateMatchScore(profile, trial);
+    return { ...trial, matchScore };
   });
 
-  // Filter for minimum match threshold (40%)
-  const validTrials = scoredTrials.filter(trial => 
-    trial.matchScore >= 0.4 && trial.distance <= profile.maxTravelDistance
-  );
-
-  // Sort first by match score (descending), then by distance (ascending)
-  return validTrials.sort((a, b) => {
-    // If match scores are significantly different, sort by score
-    if (Math.abs(b.matchScore! - a.matchScore!) > 0.2) {
-      return b.matchScore! - a.matchScore!;
+  // First sort by match score (descending)
+  let sortedTrials = scoredTrials.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+  
+  // For trials with similar match scores (within 10%), prioritize by distance
+  sortedTrials = sortedTrials.map((trial, i, arr) => {
+    const nextTrial = arr[i + 1];
+    if (nextTrial && Math.abs((trial.matchScore || 0) - (nextTrial.matchScore || 0)) <= 0.1) {
+      // Trials have similar scores, sort this subset by distance
+      const subset = arr.filter((t, idx) => 
+        idx >= i && Math.abs((t.matchScore || 0) - (trial.matchScore || 0)) <= 0.1
+      );
+      
+      const sortedSubset = subset.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+      
+      // Replace this section in the array
+      arr.splice(i, subset.length, ...sortedSubset);
+      return sortedSubset[0]; // Return the first item for this iteration
     }
-    // Otherwise, sort similar matches by distance
-    return a.distance! - b.distance!;
+    return trial;
   });
+  
+  return sortedTrials;
 };

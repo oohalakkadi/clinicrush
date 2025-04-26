@@ -1,16 +1,33 @@
 // src/App.tsx
 import React, { useState, useEffect } from 'react';
-import { Container, Nav, Navbar, Tab, Tabs } from 'react-bootstrap';
+import { Container, Nav, Navbar, Tab, Tabs, Alert } from 'react-bootstrap';
 import './App.css';
 import TrialMatching from './components/trial-matching/TrialMatching';
 import UserProfilePage from './components/profile/UserProfilePage';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserProfile, defaultUserProfile } from './types/UserProfile';
+import { checkApiHealth } from './services/api';
 
 function App() {
   const [activeTab, setActiveTab] = useState<string>("profile");
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [profileComplete, setProfileComplete] = useState<boolean>(false);
+  const [apiConnected, setApiConnected] = useState<boolean | null>(null);
+
+  // Check API health on component mount
+  useEffect(() => {
+    const checkBackendConnection = async () => {
+      try {
+        await checkApiHealth();
+        setApiConnected(true);
+      } catch (error) {
+        console.error('API health check failed:', error);
+        setApiConnected(false);
+      }
+    };
+    
+    checkBackendConnection();
+  }, []);
 
   // Load profile on component mount
   useEffect(() => {
@@ -66,19 +83,35 @@ function App() {
     <div className="App">
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand href="#home">ClinCrush</Navbar.Brand>
+          <Navbar.Brand>ClinCrush</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#home">Home</Nav.Link>
-              <Nav.Link href="#matches" disabled={!profileComplete}>My Matches</Nav.Link>
-              <Nav.Link href="#profile">Profile</Nav.Link>
+              <Nav.Link onClick={() => setActiveTab('match')} disabled={!profileComplete}>Trial Matching</Nav.Link>
+              <Nav.Link onClick={() => setActiveTab('matches')} disabled={!profileComplete}>My Matches</Nav.Link>
+              <Nav.Link onClick={() => setActiveTab('profile')}>My Profile</Nav.Link>
             </Nav>
+            {apiConnected === false && (
+              <span className="text-danger">⚠️ Backend disconnected</span>
+            )}
+            {apiConnected === true && (
+              <span className="text-success">✓ Connected</span>
+            )}
           </Navbar.Collapse>
         </Container>
       </Navbar>
       
       <Container className="mt-4">
+        {!profileComplete && (
+          <Alert variant="info" className="mb-4">
+            <Alert.Heading>Welcome to ClinCrush!</Alert.Heading>
+            <p>
+              Please complete your health profile to find clinical trials that match your needs.
+              Once your profile is complete, we'll show you personalized trial recommendations.
+            </p>
+          </Alert>
+        )}
+        
         <Tabs 
           activeKey={activeTab} 
           onSelect={(k) => k && setActiveTab(k)}
