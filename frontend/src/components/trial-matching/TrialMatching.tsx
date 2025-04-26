@@ -3,49 +3,34 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import { searchTrials } from '../../services/api';
 import TrialCard from './TrialCard';
-import { UserProfile, defaultUserProfile } from '../../types/UserProfile';
+import { UserProfile } from '../../types/UserProfile';
 import { rankTrialsByMatchScore } from '../../utils/matchingAlgorithm';
 import './TrialMatching.css';
 
-const TrialMatching: React.FC = () => {
+interface TrialMatchingProps {
+  userProfile: UserProfile;
+}
+
+const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
   const [trials, setTrials] = useState<any[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [matchedTrials, setMatchedTrials] = useState<any[]>([]);
   const [rejectedTrials, setRejectedTrials] = useState<any[]>([]);
-  const [userProfile, setUserProfile] = useState<UserProfile>(defaultUserProfile);
-  const [profileLoaded, setProfileLoaded] = useState<boolean>(false);
 
-  // Load user profile and trials on component mount
+  // Load trials based on user profile
   useEffect(() => {
-    const loadProfile = () => {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        try {
-          const profile = JSON.parse(savedProfile);
-          setUserProfile(profile);
-          setProfileLoaded(true);
-          return profile;
-        } catch (e) {
-          console.error('Failed to parse saved profile:', e);
-        }
-      }
-      return null;
-    };
-
-    const profile = loadProfile();
-    
-    if (profile && profile.medicalConditions.length > 0) {
-      // If profile exists and has medical conditions, search for those
-      const condition = profile.medicalConditions[0];
-      const location = profile.location.split(',')[0].trim();
-      loadTrials(condition, location, profile);
+    if (userProfile && userProfile.medicalConditions.length > 0) {
+      // Search for trials based on first condition (we can improve this later)
+      const condition = userProfile.medicalConditions[0];
+      const location = userProfile.location.split(',')[0].trim();
+      loadTrials(condition, location, userProfile);
     } else {
-      // Default search
-      loadTrials('diabetes', 'Boston', profile || defaultUserProfile);
+      setError('Your profile is missing medical conditions. Please update your profile.');
+      setLoading(false);
     }
-  }, []);
+  }, [userProfile]);
 
   const loadTrials = async (condition: string, location: string, profile: UserProfile) => {
     try {
@@ -56,7 +41,7 @@ const TrialMatching: React.FC = () => {
       const trialsData = await searchTrials(condition, location);
       
       if (Array.isArray(trialsData) && trialsData.length > 0) {
-        // Rank trials by match score
+        // Rank trials by match score and sort by distance
         const rankedTrials = rankTrialsByMatchScore(trialsData, profile);
         setTrials(rankedTrials);
       } else {
@@ -111,33 +96,18 @@ const TrialMatching: React.FC = () => {
     }
   };
 
-  const goToProfile = () => {
-    // In a real app, this would navigate to the profile page
-    window.location.href = '/profile';
-  };
-
   return (
     <Container>
       <Row className="my-4">
         <Col>
-          <h2 className="text-center mb-4">Find Your Clinical Trial Match</h2>
-          
-          {!profileLoaded && (
-            <Alert variant="warning">
-              <p>You haven't set up your health profile yet. Personalized matching works better with your profile information.</p>
-              <div className="d-flex justify-content-end">
-                <Button variant="outline-primary" onClick={goToProfile}>
-                  Set Up Profile
-                </Button>
-              </div>
-            </Alert>
-          )}
+          <h2 className="text-center mb-4">Your Matching Clinical Trials</h2>
           
           {loading && (
             <div className="text-center my-5">
               <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
               </Spinner>
+              <p className="mt-2">Finding trials that match your profile...</p>
             </div>
           )}
           
@@ -160,13 +130,13 @@ const TrialMatching: React.FC = () => {
             <div className="text-center my-5">
               <h3>You've viewed all available trials!</h3>
               <p>You matched with {matchedTrials.length} trials.</p>
-              <Button variant="primary" onClick={() => window.location.href = '/matches'}>
+              <Button variant="primary" onClick={() => window.location.href = '#matches'}>
                 View My Matches
               </Button>
             </div>
           )}
           
-          {!loading && (
+          {!loading && !error && (
             <div className="stats-container text-center mt-3">
               <p>Viewed: {currentIndex} | Matched: {matchedTrials.length} | Passed: {rejectedTrials.length}</p>
             </div>

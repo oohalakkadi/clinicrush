@@ -1,40 +1,50 @@
 // src/components/profile/UserProfilePage.tsx
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Container, Alert } from 'react-bootstrap';
 import ProfileForm from './ProfileForm';
-import { UserProfile, defaultUserProfile } from '../../types/UserProfile';
+import { UserProfile } from '../../types/UserProfile';
 
-const UserProfilePage: React.FC = () => {
-  const [profile, setProfile] = useState<UserProfile>(defaultUserProfile);
+interface UserProfilePageProps {
+  initialProfile: UserProfile;
+  onProfileUpdate?: (profile: UserProfile) => void;
+}
+
+const UserProfilePage: React.FC<UserProfilePageProps> = ({ initialProfile, onProfileUpdate }) => {
+  const [profile, setProfile] = useState<UserProfile>(initialProfile);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveStatus, setSaveStatus] = useState<{ success: boolean; message: string } | null>(null);
-
-  useEffect(() => {
-    // Load profile from localStorage or backend API
-    const savedProfile = localStorage.getItem('userProfile');
-    if (savedProfile) {
-      try {
-        setProfile(JSON.parse(savedProfile));
-      } catch (e) {
-        console.error('Failed to parse saved profile:', e);
-      }
-    }
-  }, []);
 
   const handleSaveProfile = (updatedProfile: UserProfile) => {
     setIsSaving(true);
     setSaveStatus(null);
 
     try {
-      // For the hackathon, we'll just save to localStorage
-      // In a real app, you'd make an API call here
+      // Save to localStorage
       localStorage.setItem('userProfile', JSON.stringify(updatedProfile));
       
       setProfile(updatedProfile);
+      
+      // Check if profile is complete
+      const isComplete = Boolean(
+        updatedProfile.firstName && 
+        updatedProfile.lastName && 
+        updatedProfile.age > 0 &&
+        updatedProfile.location && 
+        updatedProfile.medicalConditions.length > 0
+      );
+      
+      // Set success message based on completeness
       setSaveStatus({
         success: true,
-        message: 'Profile saved successfully!'
+        message: isComplete 
+          ? 'Profile saved successfully! You can now view matching trials.' 
+          : 'Profile saved, but some required information is missing.'
       });
+      
+      // Call the parent component's update function
+      if (onProfileUpdate) {
+        onProfileUpdate(updatedProfile);
+      }
     } catch (error) {
       setSaveStatus({
         success: false,

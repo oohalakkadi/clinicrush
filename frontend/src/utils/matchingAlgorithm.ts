@@ -16,18 +16,34 @@ interface Trial {
     country: string;
     zip: string;
     facility: string;
+    distance?: number; // Added distance field
   }[];
   summary: string;
-  // Add any other fields that might be relevant
+  matchScore?: number;
+  distance?: number; // Overall distance to nearest location
 }
+
+/**
+ * Calculate distance between two points using Haversine formula
+ * @param lat1 First latitude
+ * @param lon1 First longitude
+ * @param lat2 Second latitude
+ * @param lon2 Second longitude
+ * @returns Distance in miles
+ */
+export const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+  // Mock distance calculation - in a real app, replace with actual geocoding and distance calculation
+  // For the prototype, we're returning a random distance between 1 and 100 miles
+  return Math.floor(Math.random() * 100) + 1;
+};
 
 /**
  * Calculate a match score between a user profile and a clinical trial
  * @param profile User profile
  * @param trial Clinical trial
- * @returns Match score (0.0 to 1.0)
+ * @returns Match score (0.0 to 1.0) and distance
  */
-export const calculateMatchScore = (profile: UserProfile, trial: Trial): number => {
+export const calculateMatchScore = (profile: UserProfile, trial: Trial): { score: number, distance: number } => {
   let score = 0;
   let maxScore = 0;
 
@@ -59,35 +75,66 @@ export const calculateMatchScore = (profile: UserProfile, trial: Trial): number 
   }
   maxScore += 15;
 
-  // Check location proximity
-  // For the hackathon, we'll just check if the city/state matches
-  // In a real app, you'd calculate actual distances
-  const locationMatch = trial.locations.some(location => {
-    const [userCity, userState] = profile.location.split(',').map(s => s.trim().toLowerCase());
-    return (
-      location.city.toLowerCase().includes(userCity) || 
-      (location.state && location.state.toLowerCase() === userState)
-    );
+  // Calculate closest location and its distance
+  let minDistance = Infinity;
+  
+  // Extract user's city and state
+  const [userCity, userState] = profile.location.split(',').map(s => s.trim());
+  
+  trial.locations.forEach(location => {
+    // In a real app, we'd use geocoding APIs to get lat/long and calculate actual distances
+    // For this prototype, we'll use a simple formula for demo purposes
+    const distance = calculateDistance(0, 0, 0, 0); // Mock calculation
+    location.distance = distance;
+    
+    if (distance < minDistance) {
+      minDistance = distance;
+    }
   });
-
-  if (locationMatch) {
+  
+  // Only include locations within the user's max travel distance
+  const withinTravelDistance = minDistance <= profile.maxTravelDistance;
+  
+  if (withinTravelDistance) {
     score += 20;
   }
   maxScore += 20;
 
   // Calculate final score as percentage
-  return maxScore > 0 ? score / maxScore : 0;
+  return { 
+    score: maxScore > 0 ? score / maxScore : 0,
+    distance: minDistance
+  };
 };
 
 /**
- * Sort trials by match score
+ * Sort trials by match score and distance
  * @param trials List of trials
  * @param profile User profile
  * @returns Sorted trials with calculated match scores
  */
 export const rankTrialsByMatchScore = (trials: Trial[], profile: UserProfile): Trial[] => {
-  return trials.map(trial => {
-    const matchScore = calculateMatchScore(profile, trial);
-    return { ...trial, matchScore };
-  }).sort((a, b) => b.matchScore - a.matchScore);
+  const scoredTrials = trials.map(trial => {
+    const { score, distance } = calculateMatchScore(profile, trial);
+    return { 
+      ...trial, 
+      matchScore: score,
+      distance: distance
+    };
+  });
+
+  // Filter for minimum match threshold (40%)
+  const validTrials = scoredTrials.filter(trial => 
+    trial.matchScore >= 0.4 && trial.distance <= profile.maxTravelDistance
+  );
+
+  // Sort first by match score (descending), then by distance (ascending)
+  return validTrials.sort((a, b) => {
+    // If match scores are significantly different, sort by score
+    if (Math.abs(b.matchScore! - a.matchScore!) > 0.2) {
+      return b.matchScore! - a.matchScore!;
+    }
+    // Otherwise, sort similar matches by distance
+    return a.distance! - b.distance!;
+  });
 };
