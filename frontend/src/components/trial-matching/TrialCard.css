@@ -1,0 +1,28 @@
+/* src/components/trial-matching/TrialCard.css */
+.trial-card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.trial-card:hover {
+  transform: translateY(-5px);
+}
+
+.conditions-list {
+  margin-bottom: 15px;
+}
+
+.summary-text {
+  margin-bottom: 20px;
+}
+
+.trial-details {
+  background-color: #f8f9fa;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}

@@ -1,0 +1,16 @@
+/* src/components/trial-matching/TrialMatching.css */
+.trial-swipe-container {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    perspective: 1000px;
+  }
+  
+  .stats-container {
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 5px;
+  }
