@@ -1,0 +1,61 @@
+{
+  "id": "NCT02580591",
+  "title": "Empagliflozin as Adjunctive to Insulin Therapy Over 26 Weeks in Patients With T1DM (EASE-3)",
+  "conditions": [
+    "Diabetes Mellitus, Type 1"
+  ],
+  "summary": "The study will investigate the efficacy, safety, tolerability and Pharmacokinetic(PK) of 3 doses of empagliflozin compared with placebo over 26 weeks in 960 patients with type 1 diabetes mellitus as adjunctive therapy to insulin",
+  "gender": "ALL",
+  "age_range": {
+    "min": "18 Years",
+    "max": ""
+  },
+  "locations": [
+    {
+      "facility": "Healthscan Clinical Trials LLC",
+      "city": "Montgomery",
+      "state": "Alabama",
+      "country": "United States",
+      "zip": "36106",
+      "latitude": 32.3792233,
+      "longitude": -86.3077368,
+      "distance": 2037.2
+    },
+    {
+      "facility": "John Muir Physician Network Clinical Research Center",
+      "city": "Concord",
+      "state": "California",
+      "country": "United States",
+      "zip": "94520",
+      "latitude": 37.9817195,
+      "longitude": -122.025904,
+      "distance": 15.5
+    },
+    {
+      "facility": "Valley Research",
+      "city": "Fresno",
+      "state": "California",
+      "country": "United States",
+      "zip": "93720",
+      "latitude": 36.7377981,
+      "longitude": -119.7871247,
+      "distance": 138.7
+    },
+    {
+      "facility": "+ 186 more locations",
+      "city": "",
+      "state": "",
+      "country": "",
+      "zip": "",
+      "latitude": null,
+      "longitude": null,
+      "distance": null
+    }
+  ],
+  "compensation": {
+    "has_compensation": false
+  },
+  "eligibilityCriteria": "Inclusion criteria:\n\n* Signed and dated written informed consent\n* Male or female patient receiving insulin for the treatment of documented diagnosis of type 1 diabetes mellitus (T1DM) \\> 1 year\n* C-peptide value of \\< 0.7 ng/mL\n* Use of Multiple Daily Injections (MDI) of insulin or insulin pump user with total daily insulin \\>= 0.3 and \\<= 1.5 U/kg\n* Glycated haemoglobin (HbA1c) \\>= 7.5% and \\<= 10.0%\n* Good understanding of T1DM\n* Age \\>= 18 years\n* Body Mass Index (BMI) \\>= 18.5 kg/m2\n* Estimated glomerular filtration rate \\>= 30 mL/min/1.73 m2\n* Women of child-bearing potential must use highly effective methods of birth control\n* Compliance with trial medication administration between 80% and 120% during placebo run-in period Further inclusion criteria apply\n\nExclusion criteria:\n\n* History of type 2 diabetes mellitus, maturity onset diabetes of the young (MODY), pancreatic surgery or chronic pancreatitis\n* Pancreas, pancreatic islet cells or renal transplant recipient\n* T1DM treatment with any other antihyperglycaemic drug except subcutaneous basal and bolus insulin within last 3 months\n* Occurrence of severe hypoglycaemia within last 3 months and until randomisation\n* Occurence of diabetic ketoacidosis within 3 months prior to Visit 1 and until Visit 6\n* Irregular sleep/wake cycle\n* Acute coronary syndrome, stroke or Transient Ischaemic Attack (TIA) within last 3 months\n* Severe gastroparesis\n* Brittle diabetes\n* Liver disease\n* Eating disorders\n* Treatment with anti-obesity drugs, weight-loss surgery or aggressive diet regimen\n* Treatment with systemic corticosteroids\n* Change in dose of thyroid hormones within last 6 weeks and until randomisation\n* Cancer or treatment for cancer in the last five years\n* Blood dyscrasias or any disorders causing haemolysis or unstable red blood cells\n* Women who are pregnant, nursing, or who plan to become pregnant whilst in the trial\n* Alcohol or drug abuse\n* Intake of an investigational drug in another trial within last 30 days Further exclusion criteria apply",
+  "substancesUsed": [],
+  "distance": 15.5
+}

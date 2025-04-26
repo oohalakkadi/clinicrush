@@ -22,22 +22,34 @@ const TrialCard: React.FC<TrialCardProps> = ({
   // Format match score percentage
   const matchPercentage = Math.round((trial.matchScore || 0) * 100);
   
-  // Find the closest location
+  // Find the closest location with a valid distance
   const closestLocation = trial.locations.reduce((closest: any, current: any) => {
-    if (!closest || (current.distance !== undefined && current.distance < closest.distance)) {
+    // If current doesn't have a valid distance, keep the closest we've found
+    if (typeof current.distance !== 'number') {
+      return closest;
+    }
+    
+    // If this is the first valid location or it's closer than the current closest
+    if (!closest || typeof closest.distance !== 'number' || current.distance < closest.distance) {
       return current;
     }
     return closest;
   }, null);
-  
-  const formatDistance = (distance?: number): string => {
-    if (distance === undefined) return 'Unknown distance';
-    return `${distance} ${distance === 1 ? 'mile' : 'miles'} away`;
+
+  // Simple distance formatter
+  const formatDistance = (distance: any): string => {
+    return (typeof distance === 'number') 
+      ? `${distance} ${distance === 1 ? 'mile' : 'miles'} away`
+      : '';
   };
   
-  // Format location string
+  // Cleaner location display
   const locationText = closestLocation 
-    ? `${closestLocation.city}, ${closestLocation.state} - ${formatDistance(closestLocation.distance)}`
+    ? `${closestLocation.city || ''}, ${closestLocation.state || ''}${
+        Number.isFinite(closestLocation.distance) 
+          ? ` - ${formatDistance(closestLocation.distance)}`
+          : ''
+      }`
     : 'Location information not available';
   
   // Format compensation data
