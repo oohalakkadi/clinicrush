@@ -293,20 +293,36 @@ class TrialAPI:
             if len(geocoding_cache) % 10 == 0:
                 save_geocoding_cache()
             
-            # Replace the sorting section with this:
-            # Sort by distance if we have user location
             if user_latitude and user_longitude:
-                # Debug pre-sort
-                for idx, trial in enumerate(formatted_trials[:3]):
-                    logger.debug(f"Pre-sort #{idx+1}: {trial.get('id')} - distance: {trial.get('distance')}")
+            # Ensure all trials have proper distance values for sorting
+                for trial in formatted_trials:
+                    if trial.get('distance') is None:
+                        # Use a very large number for undefined distances to place at the end
+                        trial['distance'] = float('inf')
                 
-                # Clean sort with proper handling of None values
-                formatted_trials.sort(key=lambda t: 9999 if t.get('distance') is None else float(t.get('distance')))
+                # Log before sorting
+                logger.debug("Pre-sort trial distances:")
+                for idx, trial in enumerate(formatted_trials[:5]):
+                    logger.debug(f"  #{idx+1}: ID={trial['id']}, distance={trial.get('distance')}")
                 
-                # Debug post-sort
-                for idx, trial in enumerate(formatted_trials[:3]):
-                    logger.debug(f"Post-sort #{idx+1}: {trial.get('id')} - distance: {trial.get('distance')}")
-            
+                # Sort using stable numeric comparison
+                formatted_trials.sort(key=lambda t: (
+                    # Primary sort: distance value (handles float('inf') values)
+                    float(t.get('distance', float('inf'))),
+                    # Secondary sort: by ID to ensure consistent order for same distances
+                    t.get('id', '')
+                ))
+                
+                # Log after sorting
+                logger.debug("Post-sort trial distances:")
+                for idx, trial in enumerate(formatted_trials[:5]):
+                    logger.debug(f"  #{idx+1}: ID={trial['id']}, distance={trial.get('distance')}")
+                    
+                # Remove infinite distance marker for frontend display
+                for trial in formatted_trials:
+                    if trial.get('distance') == float('inf'):
+                        trial['distance'] = None
+                        
             save_geocoding_cache()
 
             for trial in formatted_trials:
