@@ -32,7 +32,6 @@ Our custom ranking system assigns a match score based on:
 - 🚻 Gender Eligibility — 15%  
 - 🎂 Age Eligibility — 15%  
 - 📍 Proximity to User — 20%  
-- 💰 Compensation Offered — 10%
 
 This ensures users see the most relevant trials first.
 
