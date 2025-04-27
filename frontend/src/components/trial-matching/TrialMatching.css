@@ -6,10 +6,28 @@
   position: relative;
 }
 
-/* Pulse animation on hover */
+/* Card hover effect with pulse */
+.card {
+  transition: all 0.3s ease;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
 .card:hover {
   animation: pulse 1.5s infinite;
   border-color: #fc545c;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(252, 84, 92, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(252, 84, 92, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(252, 84, 92, 0);
+  }
 }
 
 /* Button styles */
@@ -69,11 +87,43 @@
   transform: scale(1.1);
 }
 
-/* Animation classes */
+/* Card animations */
+.trial-card-container {
+  transition: transform 0.5s;
+}
+
 .swipe-left {
   animation: swipeLeft 0.7s ease-in-out forwards;
 }
 
 .swipe-right {
   animation: swipeRight 0.7s ease-in-out forwards;
+}
+
+@keyframes swipeLeft {
+  to {
+    transform: translateX(-150%) rotate(-10deg);
+    opacity: 0;
+  }
+}
+
+@keyframes swipeRight {
+  to {
+    transform: translateX(150%) rotate(10deg);
+    opacity: 0;
+  }
+}
+
+/* Match score styling */
+.match-score {
+  background-color:white;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+}
+
+/* Compensation info styling */
+.compensation-info {
+  color: #28a745;
 }

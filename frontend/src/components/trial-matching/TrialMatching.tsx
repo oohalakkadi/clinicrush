@@ -5,6 +5,7 @@ import TrialCard from './TrialCard';
 import { UserProfile } from '../../types/UserProfile';
 import { rankTrialsByMatchScore, filterTrialsByAllergies } from '../../utils/matchingAlgorithm';
 import { geocodeAddress } from '../../services/geocoding';
+import Confetti from 'react-confetti';
 import './TrialMatching.css';
 
 interface TrialMatchingProps {
@@ -19,6 +20,37 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
   const [matchedTrials, setMatchedTrials] = useState<any[]>([]);
   const [rejectedTrials, setRejectedTrials] = useState<any[]>([]);
   const [geocodingStatus, setGeocodingStatus] = useState<string>('pending');
+  
+  // Add new state variables for confetti
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [windowSize, setWindowSize] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  // Update window size for confetti
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    
+    // Listen for confetti trigger
+    const handleShowConfetti = () => {
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000); // Hide confetti after 3 seconds
+    };
+    
+    window.addEventListener('resize', handleResize);
+    window.addEventListener('showConfetti', handleShowConfetti);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('showConfetti', handleShowConfetti);
+    };
+  }, []);
 
   // Load trials based on user profile
   useEffect(() => {
@@ -266,6 +298,20 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
             <div className="stats-container text-center mt-3">
               <p>Viewed: {currentIndex} | Matched: {matchedTrials.length} | Passed: {rejectedTrials.length}</p>
             </div>
+          )}
+          
+          {/* Confetti animation */}
+          {showConfetti && (
+            <Confetti
+            width={windowSize.width}
+            height={windowSize.height}
+            recycle={false}
+            numberOfPieces={500}
+            gravity={0.5}       // Increase gravity (was 0.3) to make particles fall faster
+            initialVelocityY={10}  // Add this to give particles more initial downward velocity
+            tweenDuration={2000}  // Reduce this to make particles complete animations faster
+            colors={['#fc545c', '#ff8a8f', '#ffb9be', '#ffffff']}
+          />
           )}
         </Col>
       </Row>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, Button, Badge } from 'react-bootstrap';
 import { UserProfile } from '../../types/UserProfile';
 import './TrialCard.css';
@@ -18,6 +18,65 @@ const TrialCard: React.FC<TrialCardProps> = ({
   onShowDetails,
   userProfile
 }) => {
+  // Animation states
+  const [isAnimating, setIsAnimating] = useState<boolean>(false);
+  const [animationClass, setAnimationClass] = useState<string>('');
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Create audio element
+  useEffect(() => {
+    audioRef.current = new Audio('/swipe-sound.mp3');
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
+  }, []);
+
+  // Handle left swipe with animation
+  const handleSwipeLeft = () => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    setAnimationClass('swipe-left');
+    
+    // Play sound
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
+    
+    setTimeout(() => {
+      setIsAnimating(false);
+      setAnimationClass('');
+      onSwipeLeft();
+    }, 700);
+  };
+
+  // Handle right swipe with animation
+  const handleSwipeRight = () => {
+    if (isAnimating) return;
+    
+    setIsAnimating(true);
+    setAnimationClass('swipe-right');
+    
+    // Play sound
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.log('Audio play failed:', e));
+    }
+    
+    // Trigger confetti animation
+    window.dispatchEvent(new CustomEvent('showConfetti'));
+    
+    setTimeout(() => {
+      setIsAnimating(false);
+      setAnimationClass('');
+      onSwipeRight();
+    }, 700);
+  };
+  
   // Format match score percentage
   const matchPercentage = Math.round((trial.matchScore || 0) * 100);
   
@@ -89,69 +148,79 @@ const TrialCard: React.FC<TrialCardProps> = ({
   };
 
   return (
-    <Card className="trial-card">
-      <Card.Header className="d-flex justify-content-between align-items-center">
-        <div className="match-score">
-          <Badge bg={matchPercentage > 80 ? "success" : matchPercentage > 60 ? "warning" : "danger"}>
-            {matchPercentage}% Match
-          </Badge>
-          {compensationBadge}
-        </div>
-      </Card.Header>
-      <Card.Body>
-        <Card.Title>{trial.title}</Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">
-          {locationText}
-        </Card.Subtitle>
-        
-        <div className="trial-tags mb-3">
-          {trial.conditions && trial.conditions.slice(0, 3).map((condition: string, index: number) => (
-            <Badge bg="primary" className="me-1" key={index}>{condition}</Badge>
-          ))}
-          {formatGender()}
-        </div>
-        
-        <Card.Text className="trial-summary">
-          {trial.summary && trial.summary.length > 200 
-            ? trial.summary.substring(0, 200) + '...' 
-            : trial.summary || 'No summary available'}
-        </Card.Text>
-        
-        {trial.compensation?.has_compensation && (
-          <div className="compensation-info mt-2 p-2 bg-light rounded">
-            <strong>Compensation:</strong> {trial.compensation.amount ? `$${trial.compensation.amount}` : 'Available'} 
-            {trial.compensation.details && (
-              <p className="small mt-1 mb-0">{trial.compensation.details}</p>
-            )}
+    <div className={`trial-card-container ${animationClass}`} ref={cardRef}>
+      <Card className="trial-card">
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div className="match-score">
+            <Badge bg={matchPercentage > 80 ? "success" : matchPercentage > 60 ? "warning" : "danger"}>
+              {matchPercentage}% Match
+            </Badge>
+            {compensationBadge}
           </div>
-        )}
-      </Card.Body>
-      <Card.Footer className="text-center">
-        <div className="d-flex justify-content-between">
-          <Button 
-            variant="outline-danger" 
-            onClick={onSwipeLeft}
-            className="swipe-button"
-          >
-            Not Interested
-          </Button>
-          <Button 
-            variant="outline-secondary" 
-            onClick={onShowDetails}
-            className="swipe-button mx-2"
-          >
-            Details
-          </Button>
-          <Button 
-            variant="outline-success" 
-            onClick={onSwipeRight}
-            className="swipe-button"
-          >
-            Interested
-          </Button>
-        </div>
-      </Card.Footer>
-    </Card>
+        </Card.Header>
+        <Card.Body>
+          <Card.Title>{trial.title}</Card.Title>
+          <Card.Subtitle className="mb-2 text-muted">
+            {locationText}
+          </Card.Subtitle>
+          
+          <div className="trial-tags mb-3">
+            {trial.conditions && trial.conditions.slice(0, 3).map((condition: string, index: number) => (
+              <Badge bg="primary" className="me-1" key={index}>{condition}</Badge>
+            ))}
+            {formatGender()}
+          </div>
+          
+          <Card.Text className="trial-summary">
+            {trial.summary && trial.summary.length > 200 
+              ? trial.summary.substring(0, 200) + '...' 
+              : trial.summary || 'No summary available'}
+          </Card.Text>
+          
+          {trial.compensation?.has_compensation && (
+            <div className="compensation-info mt-2 p-2 bg-light rounded">
+              <strong>Compensation:</strong> {trial.compensation.amount ? `$${trial.compensation.amount}` : 'Available'} 
+              {trial.compensation.details && (
+                <p className="small mt-1 mb-0">{trial.compensation.details}</p>
+              )}
+            </div>
+          )}
+        </Card.Body>
+      </Card>
+
+      {/* New circular action buttons */}
+      <div className="action-buttons">
+        <Button 
+          variant="outline-danger" 
+          className="circle-button reject-button"
+          onClick={handleSwipeLeft}
+          disabled={isAnimating}
+        >
+          <span className="icon-wrapper">✕</span>
+        </Button>
+        
+        <Button 
+          variant="outline-secondary" 
+          className="circle-button details-button"
+          onClick={onShowDetails}
+          disabled={isAnimating}
+        >
+          <span className="icon-wrapper">⋯</span>
+        </Button>
+        
+        <Button 
+          variant="outline-success" 
+          className="circle-button accept-button"
+          onClick={handleSwipeRight}
+          disabled={isAnimating}
+        >
+          <span className="icon-wrapper">✓</span>
+        </Button>
+      </div>
+      
+      {/* Hidden audio element */}
+      <audio src="/swipe-sound.mp3" preload="auto" style={{ display: 'none' }} />
+    </div>
   );
 };
 
