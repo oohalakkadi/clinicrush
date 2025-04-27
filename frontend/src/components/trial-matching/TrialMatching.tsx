@@ -184,7 +184,17 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
             <div className="text-center my-5">
               <h3>You've viewed all available trials!</h3>
               <p>You matched with {matchedTrials.length} trials.</p>
-              <Button variant="primary" onClick={() => window.location.href = '#matches'}>
+              <Button 
+                variant="primary" 
+                className="me-3" 
+                onClick={() => {
+                  // Use tab API for proper navigation
+                  const tabElement = document.querySelector('a[href="#matches"]');
+                  if (tabElement) {
+                    (tabElement as HTMLElement).click();
+                  }
+                }}
+              >
                 View My Matches
               </Button>
             </div>

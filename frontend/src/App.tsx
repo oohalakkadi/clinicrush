@@ -4,6 +4,7 @@ import { Container, Nav, Navbar, Tab, Tabs, Alert } from 'react-bootstrap';
 import './App.css';
 import TrialMatching from './components/trial-matching/TrialMatching';
 import UserProfilePage from './components/profile/UserProfilePage';
+import MyMatches from './components/matched-trials/MyMatches';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserProfile, defaultUserProfile } from './types/UserProfile';
 import { checkApiHealth } from './services/api';
@@ -129,10 +130,13 @@ function App() {
             )}
           </Tab>
           <Tab eventKey="matches" title="My Matches" disabled={!profileComplete}>
-            <div className="p-4 text-center">
-              <h3>My Matched Trials</h3>
-              <p>This tab will show trials you've matched with.</p>
-            </div>
+            {profileComplete && <MyMatches userProfile={userProfile!} />}
+            {!profileComplete && (
+              <div className="p-4 text-center">
+                <h3>Complete your profile to see matched trials</h3>
+                <p>Please fill out your profile information before matching with trials.</p>
+              </div>
+            )}
           </Tab>
           <Tab eventKey="profile" title="My Profile">
             <UserProfilePage 

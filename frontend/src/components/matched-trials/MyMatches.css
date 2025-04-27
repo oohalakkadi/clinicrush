@@ -1,0 +1,24 @@
+.match-score-badge {
+    font-size: 0.9rem;
+    margin-left: auto;
+  }
+  
+  .trial-tags {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .compensation-info {
+    border-left: 4px solid #28a745;
+  }
+  
+  .location-list {
+    padding-left: 1rem;
+    margin-bottom: 0;
+  }
+  
+  .accordion-button:not(.collapsed) {
+    background-color: rgba(13, 110, 253, 0.1);
+    color: #0d6efd;
+  }
