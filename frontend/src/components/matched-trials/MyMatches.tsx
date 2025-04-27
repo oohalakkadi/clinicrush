@@ -194,7 +194,7 @@ const MyMatches: React.FC<MyMatchesProps> = ({ userProfile }) => {
       <Row className="my-4">
         <Col>
           <div className="d-flex justify-content-between align-items-center mb-4">
-            <h2 className="mb-0">My Matched Trials</h2>
+            <h2 className="mb-0">You crushed it.</h2>
             <div>
               <Button 
                 variant="outline-primary" 

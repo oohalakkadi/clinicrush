@@ -236,7 +236,7 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
     <Container>
       <Row className="my-4">
         <Col>
-          <h2 className="text-center mb-4">Your Matching Clinical Trials</h2>
+          <h2 className="text-center mb-4">Meet your CliniCrush.</h2>
           
           {geocodingStatus === 'geocoding' && (
             <Alert variant="info" className="mb-3">
