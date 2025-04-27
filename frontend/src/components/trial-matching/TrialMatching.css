@@ -1,16 +1,79 @@
-/* src/components/trial-matching/TrialMatching.css */
 .trial-swipe-container {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    perspective: 1000px;
-  }
-  
-  .stats-container {
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 10px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-  }
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Pulse animation on hover */
+.card:hover {
+  animation: pulse 1.5s infinite;
+  border-color: #fc545c;
+}
+
+/* Button styles */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  margin-top: 25px;
+}
+
+.circle-button {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s ease;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reject-button {
+  border: 2px solid #fc545c;
+  color: #fc545c;
+}
+
+.reject-button:hover, .reject-button:active {
+  background-color: #fc545c !important;
+  color: white !important;
+  border-color: #fc545c !important;
+  transform: scale(1.1);
+}
+
+.accept-button {
+  border: 2px solid #28a745;
+  color: #28a745;
+}
+
+.accept-button:hover, .accept-button:active {
+  background-color: #28a745 !important;
+  color: white !important;
+  border-color: #28a745 !important;
+  transform: scale(1.1);
+}
+
+.details-button {
+  border: 2px solid #6c757d;
+  color: #6c757d;
+}
+
+.details-button:hover, .details-button:active {
+  background-color: #6c757d !important;
+  color: white !important;
+  border-color: #6c757d !important;
+  transform: scale(1.1);
+}
+
+/* Animation classes */
+.swipe-left {
+  animation: swipeLeft 0.7s ease-in-out forwards;
+}
+
+.swipe-right {
+  animation: swipeRight 0.7s ease-in-out forwards;
+}
