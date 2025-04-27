@@ -1,9 +1,8 @@
-# CliniCrush: Swipe Your Way to Clinical Trials
+# CliniCrush: Find your perfect match.
 
 <div align="center">
   <img src="frontend/public/logo.png" alt="CliniCrush Logo" width="200px" />
   <br />
-  <em>Swipe right for the future.</em>
 </div>
 
 ## 🧠 Overview
