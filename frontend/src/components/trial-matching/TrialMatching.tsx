@@ -1,4 +1,3 @@
-// src/components/trial-matching/TrialMatching.tsx
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Spinner, Alert, Button } from 'react-bootstrap';
 import { searchTrials } from '../../services/api';
@@ -105,12 +104,45 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
 
   const handleSwipeRight = () => {
     if (currentIndex < trials.length) {
-      setMatchedTrials([...matchedTrials, trials[currentIndex]]);
+      const currentTrial = trials[currentIndex];
+      
+      // Update local state
+      setMatchedTrials([...matchedTrials, currentTrial]);
       setCurrentIndex(currentIndex + 1);
       
-      // Save matched trials to localStorage
-      const savedMatches = JSON.parse(localStorage.getItem('matchedTrials') || '[]');
-      localStorage.setItem('matchedTrials', JSON.stringify([...savedMatches, trials[currentIndex]]));
+      // Save to localStorage
+      try {
+        const savedMatches = JSON.parse(localStorage.getItem('matchedTrials') || '[]');
+        // Check for duplicates by ID
+        const isDuplicate = savedMatches.some((trial: any) => trial.id === currentTrial.id);
+        
+        if (!isDuplicate) {
+          const updatedMatches = [...savedMatches, currentTrial];
+          localStorage.setItem('matchedTrials', JSON.stringify(updatedMatches));
+          
+          // Set a global variable that MyMatches can check
+          window._lastMatchedTrialTimestamp = Date.now();
+          
+          // Try multiple methods to notify other components
+          // 1. Custom Event
+          try {
+            window.dispatchEvent(new CustomEvent('matchesUpdated', { 
+              detail: { matches: updatedMatches }
+            }));
+          } catch (e) {
+            console.error('Error dispatching custom event:', e);
+          }
+          
+          // 2. LocalStorage event (works across tabs)
+          try {
+            localStorage.setItem('_matchUpdateSignal', Date.now().toString());
+          } catch (e) {
+            console.error('Error setting localStorage signal:', e);
+          }
+        }
+      } catch (error) {
+        console.error('Error saving match:', error);
+      }
     }
   };
 
@@ -140,6 +172,32 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
         `Summary:\n${trial.summary}`
       );
     }
+  };
+  
+  // Handle navigation to matches tab
+  const navigateToMatches = () => {
+    // Set up localStorage and trigger before navigation
+    localStorage.setItem('_forceMatchesRefresh', 'true');
+    
+    // Try multiple tab selection methods
+    const tabSelectors = [
+      'a[data-rr-ui-event-key="matches"]',
+      'button[data-bs-target="#matches"]',
+      '.nav-link[href="#matches"]',
+      '[role="tab"][aria-controls="matches"]'
+    ];
+    
+    // Try each selector
+    for (const selector of tabSelectors) {
+      const tabElement = document.querySelector(selector);
+      if (tabElement) {
+        (tabElement as HTMLElement).click();
+        return;
+      }
+    }
+    
+    // Fallback to hash change
+    window.location.hash = 'matches';
   };
 
   return (
@@ -187,13 +245,7 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
               <Button 
                 variant="primary" 
                 className="me-3" 
-                onClick={() => {
-                  // Use tab API for proper navigation
-                  const tabElement = document.querySelector('a[href="#matches"]');
-                  if (tabElement) {
-                    (tabElement as HTMLElement).click();
-                  }
-                }}
+                onClick={navigateToMatches}
               >
                 View My Matches
               </Button>
@@ -220,5 +272,12 @@ const TrialMatching: React.FC<TrialMatchingProps> = ({ userProfile }) => {
     </Container>
   );
 };
+
+// Add this global type declaration at the top level
+declare global {
+  interface Window {
+    _lastMatchedTrialTimestamp?: number;
+  }
+}
 
 export default TrialMatching;

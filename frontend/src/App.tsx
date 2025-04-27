@@ -8,6 +8,7 @@ import MyMatches from './components/matched-trials/MyMatches';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { UserProfile, defaultUserProfile } from './types/UserProfile';
 import { checkApiHealth } from './services/api';
+import { MatchProvider } from './contexts/MatchContext';
 
 function App() {
   const [activeTab, setActiveTab] = useState<string>("profile");
@@ -81,72 +82,76 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Navbar bg="dark" variant="dark" expand="lg">
-        <Container>
-          <Navbar.Brand>ClinCrush</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => setActiveTab('match')} disabled={!profileComplete}>Trial Matching</Nav.Link>
-              <Nav.Link onClick={() => setActiveTab('matches')} disabled={!profileComplete}>My Matches</Nav.Link>
-              <Nav.Link onClick={() => setActiveTab('profile')}>My Profile</Nav.Link>
-            </Nav>
-            {apiConnected === false && (
-              <span className="text-danger">⚠️ Backend disconnected</span>
-            )}
-            {apiConnected === true && (
-              <span className="text-success">✓ Connected</span>
-            )}
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
-      
-      <Container className="mt-4">
-        {!profileComplete && (
-          <Alert variant="info" className="mb-4">
-            <Alert.Heading>Welcome to ClinCrush!</Alert.Heading>
-            <p>
-              Please complete your health profile to find clinical trials that match your needs.
-              Once your profile is complete, we'll show you personalized trial recommendations.
-            </p>
-          </Alert>
-        )}
+    <MatchProvider>
+      <div className="App">
+      <div className="App">
+        <Navbar bg="dark" variant="dark" expand="lg">
+          <Container>
+            <Navbar.Brand>ClinCrush</Navbar.Brand>
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+              <Nav className="me-auto">
+                <Nav.Link onClick={() => setActiveTab('match')} disabled={!profileComplete}>Trial Matching</Nav.Link>
+                <Nav.Link onClick={() => setActiveTab('matches')} disabled={!profileComplete}>My Matches</Nav.Link>
+                <Nav.Link onClick={() => setActiveTab('profile')}>My Profile</Nav.Link>
+              </Nav>
+              {apiConnected === false && (
+                <span className="text-danger">⚠️ Backend disconnected</span>
+              )}
+              {apiConnected === true && (
+                <span className="text-success">✓ Connected</span>
+              )}
+            </Navbar.Collapse>
+          </Container>
+        </Navbar>
         
-        <Tabs 
-          activeKey={activeTab} 
-          onSelect={(k) => k && setActiveTab(k)}
-          id="main-tabs" 
-          className="mb-4"
-        >
-          <Tab eventKey="match" title="Trial Matching" disabled={!profileComplete}>
-            {profileComplete ? (
-              <TrialMatching userProfile={userProfile!} />
-            ) : (
-              <div className="p-5 text-center">
-                <h3>Profile Required</h3>
-                <p>You need to complete your profile before viewing matching trials.</p>
-              </div>
-            )}
-          </Tab>
-          <Tab eventKey="matches" title="My Matches" disabled={!profileComplete}>
-            {profileComplete && <MyMatches userProfile={userProfile!} />}
-            {!profileComplete && (
-              <div className="p-4 text-center">
-                <h3>Complete your profile to see matched trials</h3>
-                <p>Please fill out your profile information before matching with trials.</p>
-              </div>
-            )}
-          </Tab>
-          <Tab eventKey="profile" title="My Profile">
-            <UserProfilePage 
-              initialProfile={userProfile || defaultUserProfile} 
-              onProfileUpdate={handleProfileUpdate}
-            />
-          </Tab>
-        </Tabs>
-      </Container>
+        <Container className="mt-4">
+          {!profileComplete && (
+            <Alert variant="info" className="mb-4">
+              <Alert.Heading>Welcome to ClinCrush!</Alert.Heading>
+              <p>
+                Please complete your health profile to find clinical trials that match your needs.
+                Once your profile is complete, we'll show you personalized trial recommendations.
+              </p>
+            </Alert>
+          )}
+          
+          <Tabs 
+            activeKey={activeTab} 
+            onSelect={(k) => k && setActiveTab(k)}
+            id="main-tabs" 
+            className="mb-4"
+          >
+            <Tab eventKey="match" title="Trial Matching" disabled={!profileComplete}>
+              {profileComplete ? (
+                <TrialMatching userProfile={userProfile!} />
+              ) : (
+                <div className="p-5 text-center">
+                  <h3>Profile Required</h3>
+                  <p>You need to complete your profile before viewing matching trials.</p>
+                </div>
+              )}
+            </Tab>
+            <Tab eventKey="matches" title="My Matches" disabled={!profileComplete}>
+              {profileComplete && <MyMatches userProfile={userProfile!} />}
+              {!profileComplete && (
+                <div className="p-4 text-center">
+                  <h3>Complete your profile to see matched trials</h3>
+                  <p>Please fill out your profile information before matching with trials.</p>
+                </div>
+              )}
+            </Tab>
+            <Tab eventKey="profile" title="My Profile">
+              <UserProfilePage 
+                initialProfile={userProfile || defaultUserProfile} 
+                onProfileUpdate={handleProfileUpdate}
+              />
+            </Tab>
+          </Tabs>
+        </Container>
+      </div>
     </div>
+    </MatchProvider>
   );
 }
 
