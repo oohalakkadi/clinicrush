@@ -235,3 +235,4 @@ pyrightconfig.json
 
 # PyCharm (optional)
 #.idea/
+backend/api/geocoding_cache.pkl
