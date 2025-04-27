@@ -85,16 +85,15 @@ function App() {
     <MatchProvider>
       <div className="App">
       <div className="App">
-        <Navbar bg="dark" variant="dark" expand="lg">
+        <Navbar bg='white' variant="dark" expand="lg">
           <Container>
-            <Navbar.Brand>ClinCrush</Navbar.Brand>
+          <Navbar.Brand>
+            <div className="d-flex flex-column align-items-center">
+              <img src="/logo.png" alt="Logo" height="100" className="mb-1" />
+            </div>
+          </Navbar.Brand>
             <Navbar.Toggle aria-controls="basic-navbar-nav" />
             <Navbar.Collapse id="basic-navbar-nav">
-              <Nav className="me-auto">
-                <Nav.Link onClick={() => setActiveTab('match')} disabled={!profileComplete}>Trial Matching</Nav.Link>
-                <Nav.Link onClick={() => setActiveTab('matches')} disabled={!profileComplete}>My Matches</Nav.Link>
-                <Nav.Link onClick={() => setActiveTab('profile')}>My Profile</Nav.Link>
-              </Nav>
               {apiConnected === false && (
                 <span className="text-danger">⚠️ Backend disconnected</span>
               )}
