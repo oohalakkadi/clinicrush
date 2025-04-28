@@ -69,7 +69,7 @@ This ensures users see the most relevant trials first.
 ```bash
 cd frontend
 npm install
-cp .env.example .env  # Then edit if needed
+cp .env.example .env  # Add your own Google Maps API key
 npm start
 ```
 
@@ -77,7 +77,7 @@ npm start
 ```bash
 cd backend
 pip install -r requirements.txt
-cp .env.example .env  # Then edit if needed
+cp .env.example .env  # Add your own Google Maps API key
 python app.py
 ```
 
@@ -122,5 +122,6 @@ Key challenges tackled:
 
 - Maintainers:  
   - [Ooha Lakkadi Reddy](https://github.com/oohalakkadi)
+  - [Liam Powell] (https://github.com/liampwl)
 
 > *CliniCrush: Swipe right for the future.*  
