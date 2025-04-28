@@ -7,7 +7,7 @@
 
 ## 🧠 Overview
 
-Finding a clinical trial shouldn't feel like solving a puzzle. **CliniCrush** is a gamified, swipe-based web application that helps patients match with clinical trials tailored to their medical profile. Inspired by the familiarity of dating apps, we make discovering trials intuitive, personalized, and even fun.
+Finding a clinical trial shouldn't feel like solving a puzzle. **CliniCrush** is a gamified, swipe-based web application prototype that helps patients match with clinical trials tailored to their medical profile. Inspired by the familiarity of dating apps, we make discovering trials intuitive, personalized, and even fun.
 
 Built for **HackDKU 2025** in the **Biotech/Healthcare** track, CliniCrush aims to break down barriers in trial discovery and boost participation in life-changing medical research.
 
@@ -18,7 +18,7 @@ Built for **HackDKU 2025** in the **Biotech/Healthcare** track, CliniCrush aims 
 - 🎯 **Personalized Matching**: Users input medical conditions, age, gender, location, and preferences.
 - 👉 **Tinder-Style Swiping**: Swipe right on trials you’re interested in; left to pass.
 - 📍 **Location-Aware Discovery**: Prioritizes nearby trials with geocoding and distance calculation.
-- 📋 **Rich Trial Info**: View eligibility, compensation, and contact details.
+- 📋 **Rich Trial Info**: View eligibility, compensation, and content details.
 - 🎉 **Match Celebration**: Visual feedback for successful matches.
 - 💾 **Local Match Storage**: Saves matched trials for future reference.
 
@@ -28,10 +28,11 @@ Built for **HackDKU 2025** in the **Biotech/Healthcare** track, CliniCrush aims 
 
 Our custom ranking system assigns a match score based on:
 
-- ✅ Condition Relevance — 50%  
-- 🚻 Gender Eligibility — 15%  
-- 🎂 Age Eligibility — 15%  
-- 📍 Proximity to User — 20%  
+- ✅ Condition Relevance — 50 points  
+- 🚻 Gender Eligibility — 15 points
+- 🎂 Age Eligibility — 15 points
+- 📍 Proximity to User — 20 points, 
+- 💰 Compensation Offered — 10 points, accounting for close matches
 
 This ensures users see the most relevant trials first.
 
@@ -86,7 +87,7 @@ Backend runs at [http://localhost:2000](http://localhost:2000)
 
 ## 🏆 Hackathon Journey
 
-CliniCrush was conceived and built at HackDKU 2025 in under 36 hours.  
+CliniCrush was conceived and built at HackDKU 2025 in under 24 hours.  
 Our key challenges included:
 
 - 🧭 Implementing real-time distance calculations
@@ -101,8 +102,8 @@ Our key challenges included:
 - 📝 In-app trial enrollment
 - 💬 Direct messaging with coordinators
 - ⏰ Appointment reminders
-- 📖 Enhanced health profiles
-- 🔗 Share trials with family or doctors
+- 📖 Enhanced health profiles, with scannable QR system to share medical details with providers
+- 🔗 Optimized matching algorithm
 
 ---
 
