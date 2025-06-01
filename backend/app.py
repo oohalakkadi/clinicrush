@@ -2,9 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from api.trials import TrialAPI
 import logging
+import os
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, origins=["https://clinicrush.vercel.app"])
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -34,4 +35,5 @@ def health_check():
     return jsonify({"status": "healthy", "message": "API is running"})
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=2000)
+    port = int(os.environ.get('PORT', 2000))
+    app.run(host='0.0.0.0', port=port)
