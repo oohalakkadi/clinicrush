@@ -107,7 +107,7 @@ function App() {
         <Container className="mt-4">
           {!profileComplete && (
             <Alert variant="info" className="mb-4">
-              <Alert.Heading>Welcome to ClinCrush!</Alert.Heading>
+              <Alert.Heading>Welcome to CliniCrush!</Alert.Heading>
               <p>
                 Please complete your health profile to find clinical trials that match your needs.
                 Once your profile is complete, we'll show you personalized trial recommendations.
